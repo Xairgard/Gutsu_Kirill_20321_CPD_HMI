@@ -263,7 +263,7 @@ if __name__ == "__main__":
 
 ## Скриншот
 
-![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/CPD/Task_1/Image1.PNG)
+![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/CPD/Task_1/image1.PNG)
 
 ## Пояснение
 
