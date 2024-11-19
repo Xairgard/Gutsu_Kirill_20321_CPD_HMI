@@ -136,12 +136,12 @@ if __name__ == "__main__":
 
 Скриншот1:
 
-![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMIHMI/Task_1/image.png)
+![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/HMI/Task_1/image.png)
 
 
 Скриншот2:
 
-![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMIHMI/Task_1/image2.png)
+![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/HMI/Task_1/image2.png)
 
 
 
