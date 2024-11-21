@@ -54,7 +54,7 @@ server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 # Использование сгенерированную функцию `add_Calculator Services_to_server`, чтобы добавить определенный класс на сервер
 product_info_pb2_grpc.add_ProductInfoServicer_to_server(ProductInfoServicer(), server)
 
-# Gрослушивание на порту 50051
+# Прослушивание на порту 50051
 print('Starting server. Listening on port 50051.')
 server.add_insecure_port('[::]:50051')
 # Запуск сервера
