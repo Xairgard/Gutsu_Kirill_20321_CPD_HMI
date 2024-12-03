@@ -103,6 +103,6 @@ if __name__ == '__main__':
 
 ## Скриншот
 # Server
-![alt text](https://github.com/Zhastik/Zhaslan_Dusaev_20321_HMI_CPD/blob/main/CPD/Task_5/png/Server.png)
+![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/CPD/Task_5/png/Server.png)
 # Client
-![alt text](https://github.com/Zhastik/Zhaslan_Dusaev_20321_HMI_CPD/blob/main/CPD/Task_5/png/Client.png)
+![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/CPD/Task_5/png/Client.png)
