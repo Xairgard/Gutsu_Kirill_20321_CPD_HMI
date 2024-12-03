@@ -5,126 +5,102 @@
 # Листинг 4:
 Сервер(server.py)
 ```Py
-#Импорт библиотек
-from PySide6.QtCore import QUrl, QByteArray, QTimer
-from PySide6.QtMultimedia import QMediaPlayer
-from PySide6.QtMultimediaWidgets import QVideoWidget
-from PySide6.QtNetwork import QTcpServer, QTcpSocket
-from PySide6.QtWidgets import QApplication, QMainWindow
-import os
+from PySide6.QtWidgets import QApplication, QLabel, QGridLayout, \
+    QWidget  # Импортируются необходимые виджеты из библиотеки PySide6 для создания графического интерфейса
+from PySide6.QtNetwork import QTcpServer, QTcpSocket, \
+    QHostAddress  # Импортируются классы для работы с сетевыми соединениями, такие как TCP сервер и сокеты
+from PySide6.QtCore import QByteArray, Signal, \
+    QObject  # Импортируются необходимые классы для работы с сигналами и буфером данных
+from PySide6.QtGui import QImage, QPixmap  # Импортируются классы для работы с изображениями и отображением их в виджете
+import sys
+import video_frame_pb2  # Импорт сгенерированного модуля Protobuf, содержащего классы для работы с сообщениями Protobuf
+
+app = QApplication(sys.argv)
+window = QWidget()  # Создание главного окна
+
+buffer = QByteArray()  # Буфер для хранения входящих данных
+
+# Создание виджета для отображения изображения
+up_camera = QLabel()
+grid = QGridLayout(window)
+grid.addWidget(up_camera, 0, 0)
+
+# Настройка и запуск TCP сервера
+tcpServer = QTcpServer()  # Создание TCP сервера для прослушивания входящих соединений
+tcpServer.listen(QHostAddress.LocalHost,
+                 12345)  # Настройка TCP сервера на прослушивание соединений по адресу localhost и порту 12345
 
 
-class VideoServer(QMainWindow):
+# Сигнал для обновления изображения
+class ImageUpdater(QObject):
+    up_camera_signal = Signal(QImage)
+
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PySide6 Video Server")
+        self.up_camera_signal.connect(self.update_frame)
 
-        # Настройка виджета для видео
-        self.video_widget = QVideoWidget()
-        self.setCentralWidget(self.video_widget)
-
-        # Настройка QMediaPlayer
-        self.media_player = QMediaPlayer()
-        self.media_player.setVideoOutput(self.video_widget)
-
-        # Логирование ошибок
-        self.media_player.errorOccurred.connect(self.on_error)
-        self.media_player.mediaStatusChanged.connect(self.on_media_status)
-
-        # Настройка TCP-сервера
-        self.tcp_server = QTcpServer(self)
-        if not self.tcp_server.listen(port=12345):
-            print(f"Не удалось запустить сервер: {self.tcp_server.errorString()}")
-            return
-
-        print("Сервер запущен на порту 12345")
-        self.tcp_server.newConnection.connect(self.handle_new_connection)
-
-        self.client_socket = None
-        self.buffer = QByteArray()
-
-    def handle_new_connection(self):#функция обработки подключений
-        self.client_socket = self.tcp_server.nextPendingConnection()
-        self.client_socket.readyRead.connect(self.read_data)
-        self.client_socket.disconnected.connect(self.client_socket.deleteLater)
-        print("Клиент подключен")
-
-    def read_data(self):#чтение данных от клиента
-        while self.client_socket.bytesAvailable():
-            self.buffer.append(self.client_socket.readAll())
-
-        # Если передача завершена, сохраняем данные в видеофайл
-        if b'EOF' in self.buffer.data():
-            print("Передача завершена")
-            self.buffer.remove(self.buffer.indexOf(b'EOF'), 3)  # Удаляем маркер EOF
-            video_file = "received_video.mp4"
-            with open(video_file, 'wb') as f:
-                f.write(self.buffer)
-            self.buffer.clear()
-            print(f"Видео сохранено как {video_file}")
-
-            # Проверяем размер файла
-            file_size = os.path.getsize(video_file)
-            print(f"Размер файла: {file_size} байт")
-
-            # Воспроизводим видео
-            self.media_player.setSource(QUrl.fromLocalFile(video_file))
-            self.media_player.play()
-
-    def on_error(self, error):
-        print(f"Ошибка воспроизведения: {error}, {self.media_player.errorString()}")
-
-    def on_media_status(self, status):
-        print(f"Статус медиа: {status}")
+    def update_frame(self, image):
+        up_camera.setPixmap(QPixmap.fromImage(image))
 
 
-if __name__ == "__main__":
-    app = QApplication([])
-    server = VideoServer()
-    server.show()
-    app.exec()
+image_updater = ImageUpdater()
+
+
+def handle_new_connection():
+    """Метод, вызываемый при новом соединении"""
+    client_socket = tcpServer.nextPendingConnection()  # Получение следующего ожидающего соединения клиента
+    client_socket.readyRead.connect(lambda: process_video_data(client_socket))
+
+
+def process_video_data(socket: QTcpSocket):
+    """Метод для чтения и обработки видеоданных"""
+    global buffer
+    buffer.append(socket.readAll())  # Добавление всех данных, считанных из сокета, в буфер для последующей обработки
+    video_frame = video_frame_pb2.VideoFrame()
+    if video_frame.ParseFromString(
+            buffer.data()):  # Попытка десериализовать данные из буфера с использованием Protobuf. Если успешно, данные кадра будут извлечены
+        image = QImage()
+        image.loadFromData(video_frame.frame_data, "JPEG")
+        if not image.isNull():
+            image_updater.up_camera_signal.emit(image)
+        buffer.clear()
+
+
+# Подключение обработчика для новых соединений
+tcpServer.newConnection.connect(handle_new_connection)
+
+# Запуск приложения
+window.show()
+sys.exit(app.exec_())
 ```
 Клиент(client.py)
 ```Py
-import sys
-from PySide6.QtNetwork import QTcpSocket
-from PySide6.QtCore import QIODevice, QByteArray
+import cv2
+import socket
+import video_frame_pb2  # Импорт сгенерированного модуля Protobuf, содержащего классы для работы с сообщениями Protobuf
 
-
-def send_video():
-    file_path = "C:\\Users\\kiril\\Desktop\\sssss\\3.mp4"
-    host = "localhost"
-    port = 12345
-
-    socket = QTcpSocket()
-    socket.connectToHost(host, port)
-
-    if not socket.waitForConnected(5000):
-        print("Не удалось подключиться к серверу")
-        return
-
-    print("Подключено к серверу")
-
-    # Чтение файла и отправка его содержимого
-    try:
-        with open(file_path, "rb") as f:
-            buffer = QByteArray(f.read())  # Читаем весь файл сразу
-            socket.write(buffer)  # Отправляем содержимое файла
-            socket.waitForBytesWritten(5000)
-
-        # Добавляем маркер окончания передачи
-        socket.write(b'EOF')
-        socket.waitForBytesWritten(5000)
-        print("Видео отправлено")
-    except FileNotFoundError:
-        print(f"Файл {file_path} не найден")
-    except Exception as e:
-        print(f"Ошибка: {e}")
-    finally:
-        socket.close()
+def send_video_frame_by_frame(video_path, server_ip, server_port):
+    cap = cv2.VideoCapture(video_path)  # Открытие видеофайла для захвата кадров с помощью OpenCV
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.connect((server_ip, server_port))  # Установка соединения с сервером по заданному IP-адресу и порту
+        while cap.isOpened():
+            ret, frame = cap.read()
+            # Если кадр есть
+            if not ret:
+                break
+            # Кодирование кадра в формате JPEG
+            _, buffer = cv2.imencode('.jpg', frame)  # Кодирование кадра в формат JPEG и сохранение его в буфер
+            # Создание сообщения VideoFrame
+            video_frame = video_frame_pb2.VideoFrame()
+            video_frame.frame_data = buffer.tobytes()  # Запись закодированных данных кадра в сообщение Protobuf
+            # Сериализация сообщения и его отправка
+            sock.sendall(video_frame.SerializeToString())  # Сериализация сообщения Protobuf и его отправка на сервер
+    # Освобождение ресурсов захвата видео
+    cap.release()
 
 if __name__ == "__main__":
-    send_video()
+    video_path = '1.mp4'
+    send_video_frame_by_frame(video_path, '127.0.0.1', 12345)
 ```
 ![alt text](Screenshot.png)
 

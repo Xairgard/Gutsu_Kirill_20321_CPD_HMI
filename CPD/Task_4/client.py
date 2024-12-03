@@ -1,39 +1,26 @@
-import sys
-from PySide6.QtNetwork import QTcpSocket
-from PySide6.QtCore import QIODevice, QByteArray
+import cv2
+import socket
+import video_frame_pb2  # Импорт сгенерированного модуля Protobuf, содержащего классы для работы с сообщениями Protobuf
 
-
-def send_video():
-    file_path = "C:\\Users\\kiril\\Desktop\\sssss\\3.mp4"
-    host = "localhost"
-    port = 12345
-
-    socket = QTcpSocket()
-    socket.connectToHost(host, port)
-
-    if not socket.waitForConnected(5000):
-        print("Не удалось подключиться к серверу")
-        return
-
-    print("Подключено к серверу")
-
-    # Чтение файла и отправка его содержимого
-    try:
-        with open(file_path, "rb") as f:
-            buffer = QByteArray(f.read())  # Читаем весь файл сразу
-            socket.write(buffer)  # Отправляем содержимое файла
-            socket.waitForBytesWritten(5000)
-
-        # Добавляем маркер окончания передачи
-        socket.write(b'EOF')
-        socket.waitForBytesWritten(5000)
-        print("Видео отправлено")
-    except FileNotFoundError:
-        print(f"Файл {file_path} не найден")
-    except Exception as e:
-        print(f"Ошибка: {e}")
-    finally:
-        socket.close()
+def send_video_frame_by_frame(video_path, server_ip, server_port):
+    cap = cv2.VideoCapture(video_path)  # Открытие видеофайла для захвата кадров с помощью OpenCV
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.connect((server_ip, server_port))  # Установка соединения с сервером по заданному IP-адресу и порту
+        while cap.isOpened():
+            ret, frame = cap.read()
+            # Если кадр есть
+            if not ret:
+                break
+            # Кодирование кадра в формате JPEG
+            _, buffer = cv2.imencode('.jpg', frame)  # Кодирование кадра в формат JPEG и сохранение его в буфер
+            # Создание сообщения VideoFrame
+            video_frame = video_frame_pb2.VideoFrame()
+            video_frame.frame_data = buffer.tobytes()  # Запись закодированных данных кадра в сообщение Protobuf
+            # Сериализация сообщения и его отправка
+            sock.sendall(video_frame.SerializeToString())  # Сериализация сообщения Protobuf и его отправка на сервер
+    # Освобождение ресурсов захвата видео
+    cap.release()
 
 if __name__ == "__main__":
-    send_video()
+    video_path = '1.mp4'
+    send_video_frame_by_frame(video_path, '127.0.0.1', 12345)
