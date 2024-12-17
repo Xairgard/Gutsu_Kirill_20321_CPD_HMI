@@ -213,7 +213,7 @@ run()
 
 ## Скриншот
 # Server
-![alt text](https://github.com/Zhastik/Zhaslan_Dusaev_20321_HMI_CPD/blob/main/CPD/Task_6/png/Server.png)
+![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/CPD/Task_6/png/Server.png)
 # Client
-![alt text](https://github.com/Zhastik/Zhaslan_Dusaev_20321_HMI_CPD/blob/main/CPD/Task_6/png/Client_1.png)
-![alt text](https://github.com/Zhastik/Zhaslan_Dusaev_20321_HMI_CPD/blob/main/CPD/Task_6/png/Client_2.png)
+![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/CPD/Task_6/png/Client_1.png)
+![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/CPD/Task_6/png/Client_2.png)
