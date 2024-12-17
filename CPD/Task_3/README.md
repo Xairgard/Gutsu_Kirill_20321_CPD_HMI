@@ -49,7 +49,7 @@ sock.close()
 ## Пояснение и скриншоты результатов работы
 Task_3_1_server.py Task_3_1_client.py мы используем encode и decode для того что бы передать информацию на сервер и принять её сервером
 
-![alt text](https://github.com/Zhastik/Zhaslan_Dusaev_20321_HMI_CPD/blob/main/CPD/Task_3/Task_3_1/Task_3_1_server.png)
+![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/CPD/Task_3/Task_3_1/Task_3_1_server.png)
 
 # Task_3_2
 Используя pickle - де/сериализация произвольных объектов.
@@ -104,7 +104,7 @@ sock.close()
 ## Пояснение и скриншоты результатов работы
 Task_3_2_server.py Task_3_2_client.py мы используем pickle для де/сериализация произвольных объектов
 
-![alt text](https://github.com/Zhastik/Zhaslan_Dusaev_20321_HMI_CPD/blob/main/CPD/Task_3/Task_3_2/Task_3_2.png)
+![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/CPD/Task_3/Task_3_2/Task_3_2.png)
 
 # Task_3_3
 Используя Google Protocol Buffers - де/сериализация определенных структурированных данных, а не произвольных объектов Python
@@ -168,4 +168,4 @@ sock.close()
 ## Пояснение и скриншоты результатов работы
 Task_3_3_server.py Task_3_3_client.py мы используем Google Protocol Buffers - де/сериализация определенных структурированных данных, а не произвольных объектов Python. Для этого мы создаём файл protolc_pb2, в который записываем типы сообщений
 
-![alt text](https://github.com/Zhastik/Zhaslan_Dusaev_20321_HMI_CPD/blob/main/CPD/Task_3/Task_3_3/Task_3_3.png)
+![alt text](https://github.com/Xairgard/Gutsu_Kirill_20321_CPD_HMI/blob/main/CPD/Task_3/Task_3_3/Task_3_3.png)
